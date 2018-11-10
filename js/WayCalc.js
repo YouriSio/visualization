@@ -137,5 +137,7 @@ function readArray(array) {
         phiarray.push(Number(array[i][4]));
     }
 
+    var lol = new KeyFrameTrack('yolo', tarray, [xarray,yarray,zarray,phiarray], 0);
+
     //DroneAnimate(array,tarray, xarray, yarray, zarray, phiarray);
 }

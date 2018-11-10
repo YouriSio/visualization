@@ -13,10 +13,6 @@ function DroneAnimate(array,tarray, xarray, yarray, zarray, phiarray){
         yarr = yarray[i-1];
         zarr = zarray[i-1];
       }
-      
-      var tween = new TWEEN.Tween({x: xarr,y: yarr, z:zarr, rotationx:-1.57079632679}).to({rotationx:-1.57079632679, x: xarray[i], y: yarray[i], z:zarray[i]}, tarray[i]*1000).onUpdate( function(){
-      drone.position.y = this.y;
-      }).start();
 
 
     }
