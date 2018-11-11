@@ -121,7 +121,7 @@ function csv2array(data, delimeter) {
 
 function readArray(array) {
 
-    console.log(array);
+  console.log(JSON.stringify(array));
     var i;
     var j;
     var tarray = [];
