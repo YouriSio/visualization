@@ -59,61 +59,51 @@
 				camera.lookAt( scene.position );
 
 				//Floor
-				var floorGeometry = new THREE.CubeGeometry(100,1,50);
+				var soccerfieldWidth = 50;
+				var soccerfieldLength = 1.4 * soccerfieldWidth;
+				var soccerfieldThickness = 1;
+				var floorGeometry = new THREE.CubeGeometry(soccerfieldLength,soccerfieldThickness,soccerfieldWidth);
 				var floorMaterial = new THREE.MeshLambertMaterial( { map: new THREE.TextureLoader().load('img/soccerfield.jpg'), side:THREE.DoubleSide } );
 				var floorCube = new THREE.Mesh( floorGeometry, floorMaterial );
-				floorCube.position.y = -5;
 				scene.add( floorCube );
-				//LeftPoleL
-				var leftWallLGeometry = new THREE.CubeGeometry(1,5,1);
-				var leftWallLMaterial = new THREE.MeshLambertMaterial( { map: new THREE.TextureLoader().load('img/shinypost.jpg'), side:THREE.DoubleSide } );
-				var leftWallLCube = new THREE.Mesh( leftWallLGeometry, leftWallLMaterial );
-				leftWallLCube.position.x = -42;
-				leftWallLCube.position.z = -5;
-				leftWallLCube.position.y = -2;
-				scene.add( leftWallLCube );
 
-				//LeftPoleR
-				var leftWallRGeometry = new THREE.CubeGeometry(1,5,1);
-				var leftWallRMaterial = new THREE.MeshLambertMaterial( { map: new THREE.TextureLoader().load('img/shinypost.jpg'), side:THREE.DoubleSide } );
-				var leftWallRCube = new THREE.Mesh( leftWallRGeometry, leftWallRMaterial );
-				leftWallRCube.position.x = -42;
-				leftWallRCube.position.z = 5;
-				leftWallRCube.position.y = -2;
-				scene.add( leftWallRCube );
-				//Left Crossbar
-				var leftCrossbarGeometry = new THREE.CubeGeometry(1,1,10);
-				var leftCrossbarMaterial = new THREE.MeshLambertMaterial( { map: new THREE.TextureLoader().load('img/shinypost.jpg'), side:THREE.DoubleSide } );
-				var leftCrossbar = new THREE.Mesh( leftCrossbarGeometry, leftCrossbarMaterial );
-				leftCrossbar.position.x = -42;
-				leftCrossbar.position.z = 0;
-				leftCrossbar.position.y = 0;
-				scene.add( leftCrossbar );
+				function createPole() {
+					var poleGeometry = new THREE.CubeGeometry(1,5,1);
+					var poleMaterial = new THREE.MeshLambertMaterial( { map: new THREE.TextureLoader().load('img/shinypost.jpg'), side:THREE.DoubleSide } );
+					return new THREE.Mesh( poleGeometry, poleMaterial );
+				}
+				
+				function createGoal() {
+					var crossbarGeometry = new THREE.CubeGeometry(1,1,10);
+					var goalMaterial = new THREE.MeshLambertMaterial( { map: new THREE.TextureLoader().load('img/shinypost.jpg'), side:THREE.DoubleSide } );
+					var crossbar = new THREE.Mesh( crossbarGeometry, goalMaterial );
+					
+					var leftPole = createPole();
+					leftPole.position.z = -5;
+					leftPole.position.y = -2;
 
-				//RightPoleL
-				var rightWallLGeometry = new THREE.CubeGeometry(1,5,1);
-				var rightWallLMaterial = new THREE.MeshLambertMaterial( { map: new THREE.TextureLoader().load('img/shinypost.jpg'), side:THREE.DoubleSide } );
-				var rightWallLCube = new THREE.Mesh( rightWallLGeometry, rightWallLMaterial );
-				rightWallLCube.position.x = 42;
-				rightWallLCube.position.z = -5;
-				rightWallLCube.position.y = -2;
-				scene.add( rightWallLCube );
-				//RightPoleR
-				var rightWallRGeometry = new THREE.CubeGeometry(1,5,1);
-				var rightWallRMaterial = new THREE.MeshLambertMaterial( { map: new THREE.TextureLoader().load('img/shinypost.jpg'), side:THREE.DoubleSide } );
-				var rightWallRCube = new THREE.Mesh( rightWallRGeometry, rightWallRMaterial );
-				rightWallRCube.position.x = 42;
-				rightWallRCube.position.z = 5;
-				rightWallRCube.position.y = -2;
-				scene.add( rightWallRCube );
-				//RightCrossbar
-				var rightCrossbarGeometry = new THREE.CubeGeometry(1,1,10);
-				var rightCrossbarMaterial = new THREE.MeshLambertMaterial( { map: new THREE.TextureLoader().load('img/shinypost.jpg'), side:THREE.DoubleSide } );
-				var rightCrossbar = new THREE.Mesh( rightCrossbarGeometry, rightCrossbarMaterial );
-				rightCrossbar.position.x = 42;
-				rightCrossbar.position.z = 0;
-				rightCrossbar.position.y = 0;
-				scene.add( rightCrossbar );
+					var rightPole = createPole();
+					rightPole.position.z = 5;
+					rightPole.position.y = -2
+
+					var goal = new THREE.Group();
+
+					goal.add(leftPole);
+					goal.add(rightPole);
+					goal.add(crossbar);
+					
+					return goal;
+				}
+				
+				var leftGoal = createGoal();
+				leftGoal.position.x = -(soccerfieldLength/2-5);
+				leftGoal.position.y = 5;
+				scene.add(leftGoal);
+
+				var rightGoal = createGoal();
+				rightGoal.position.x = (soccerfieldLength/2-5);
+				rightGoal.position.y = 5;
+				scene.add(rightGoal);
 
 				var axesHelper = new THREE.AxesHelper( 20 );
 				scene.add( axesHelper );
