@@ -17,3 +17,5 @@
 
 No installation is needed. However, a local web server must be used to run index.html.
 
+## How it works
+A list of quaternions is taken from the MATLAB simulation and converted into a CSV file. The CSV file (located in docs) is then read and broken down into seperate arrays containing each quarternion and it's dedicated timeframe. The arrays are then parsed as a JSON through the Three.js KeyFrameTracker where the simulation is then animated.   
