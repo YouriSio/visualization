@@ -85,6 +85,8 @@
 				var floorGeometry = new THREE.CubeGeometry(soccerfieldLength,soccerfieldThickness,soccerfieldWidth);
 				var floorMaterial = new THREE.MeshLambertMaterial( { map: new THREE.TextureLoader().load('img/soccerfield.jpg'), side:THREE.DoubleSide } );
 				var floorCube = new THREE.Mesh( floorGeometry, floorMaterial );
+				//Receive shadow from drone
+				floorCube.receiveShadow = true;
 				scene.add( floorCube );
 
 				var goalWidth = 1.4;
@@ -146,6 +148,9 @@
 					object.traverse(function(child) {
 						if (child instanceof THREE.Mesh) {
 							child.material = mat;
+							//Add shadows from drone but not receive shadows
+							child.castShadow = true;
+							child.receiveShadow = false;
 						}
 						drone = object;
 					});
@@ -163,16 +168,28 @@
 
 				//Light
 				var ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.8);
-
 				scene.add( ambientLight );
 
-				var directionalLight = new THREE.DirectionalLight(0XFFFFFF,1);
-				directionalLight.position.set( 0,1,0 );
-				scene.add( directionalLight );
+				//Create a DirectionalLight and turn on shadows for the light
+				var light = new THREE.DirectionalLight( 0xffffff, 1, 100);
+				light.position.set( 0, 10, 0 ); 			//default; light shining from top
+				light.castShadow = true;            // default false
+				scene.add( light );
 
-				
+				//Set up shadow properties for the light
+				light.shadow.mapSize.width = 512;  // default
+				light.shadow.mapSize.height = 512; // default
+				light.shadow.camera.near = 0.5;    // default
+				light.shadow.camera.far = 500;     // default
+
+				var helper = new THREE.CameraHelper( light.shadow.camera );
+				scene.add( helper );				
 				//
+
 				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				//Enable shadows
+				renderer.shadowMap.enabled = true;
+				renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				document.body.appendChild( renderer.domElement );
