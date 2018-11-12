@@ -167,23 +167,28 @@
 				});
 
 				//Light
-				var ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.8);
-				scene.add( ambientLight );
+				var hemisphereLight = new THREE.HemisphereLight(0xaaaaaa,0x000000, .9)
+				scene.add( hemisphereLight );
 
 				//Create a DirectionalLight and turn on shadows for the light
-				var light = new THREE.DirectionalLight( 0xffffff, 1, 100);
-				light.position.set( 0, 10, 0 ); 			//default; light shining from top
+				var light = new THREE.DirectionalLight( 0xffffff, .9);
+				light.position.set( 0, 8, 0 );
 				light.castShadow = true;            // default false
 				scene.add( light );
 
 				//Set up shadow properties for the light
-				light.shadow.mapSize.width = 512;  // default
-				light.shadow.mapSize.height = 512; // default
+				light.shadow.mapSize.width = 1024;  // default
+				light.shadow.mapSize.height = 1024; // default
+
+				light.shadow.camera.left = -soccerfieldWidth/2;
+				light.shadow.camera.right = soccerfieldWidth/2;
+				light.shadow.camera.top = 10;
+				light.shadow.camera.bottom = -10;
 				light.shadow.camera.near = 0.5;    // default
-				light.shadow.camera.far = 500;     // default
+				light.shadow.camera.far = 1000;     // default
 
 				var helper = new THREE.CameraHelper( light.shadow.camera );
-				scene.add( helper );				
+				//scene.add( helper );		
 				//
 
 				renderer = new THREE.WebGLRenderer( { antialias: true } );
