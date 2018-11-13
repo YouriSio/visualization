@@ -13,6 +13,7 @@
  - [x] Make the map user interactable	 
  - [ ] Add start/load screen
  - [ ] Create multiple environments
+ - [ ] Playback controls
 
 ## Installation
 
