@@ -10,6 +10,11 @@
 	</head>
 
 	<body>
+		<button onclick="pause();" style="float: right">Pause</button>
+		<button onclick="play();" style="float: right">Play</button>
+		<button onclick="setTime(0);" style="float: right">Reset</button>
+		<button onclick="setTime(3);" style="float: right">Set time 3</button>
+
 		<script src="js/three.js"></script>
 		<script src="js/OrbitControls.js"></script>
 		<script src="js/OBJLoader.js"></script>
@@ -113,6 +118,33 @@
 				scene.add(rightGoal);
 			}
 			
+			function pause() {
+				clock.stop();
+			}
+
+			function play() {
+				clock.start();
+			}
+
+			//Dirty hack -- NEEDS improvement
+			function setTime(setTime) {
+				//Resets mixer, calculates newposition by dividing by the keyframe interval
+				//It then slices the keyframe arrays so that only the part of the animation that is after the time remains
+				//It calculates the keyframetimes so that it gets shifted forward
+				//And starts the animation
+				mixer.stopAllAction();
+				var newPosition = setTime/keyFrameTimes[1];
+				var newKeyFrameTimes = keyFrameTimes.slice(newPosition);
+				newKeyFrameTimes = newKeyFrameTimes.map(function(val) {
+					return val - setTime;
+				});
+				var positionKF = new THREE.VectorKeyframeTrack( '.position', newKeyFrameTimes, keyFrameVectors.slice(newPosition*3) );
+				var quaternionKF = new THREE.QuaternionKeyframeTrack( '.quaternion', newKeyFrameTimes, keyFrameQuaternion.slice(newPosition*4) );
+				var clip = new THREE.AnimationClip( 'Action', keyFrameTimes, [ quaternionKF, positionKF] );
+				var clipAction = mixer.clipAction( clip );
+				clipAction.play();
+			}
+
 			var stats, clock;
 			var scene, camera, renderer, mixer;
 			init();
