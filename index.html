@@ -58,22 +58,7 @@
 			keyFrameQuaternion = [].concat(...keyFrameQuaternion);
 
 			//
-			var stats, clock;
-			var scene, camera, renderer, mixer;
-			init();
-			animate();
-			function init() {
-				scene = new THREE.Scene();
-
-				//Setup camera
-				camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 1000 );
-				camera.position.set( 5, 3, 5 );
-				camera.lookAt( scene.position );
-
-				//Axes helper
-				var axesHelper = new THREE.AxesHelper( 20 );
-				scene.add( axesHelper );
-
+			function sceneSoccerField() {
 				//Floor
 				var soccerfieldWidth = 10;
 				var soccerfieldLength = 1.4 * soccerfieldWidth;
@@ -126,6 +111,25 @@
 				rightGoal.position.x = (soccerfieldLength/2-.8);
 				rightGoal.position.y = goalHeight+goalThickness;
 				scene.add(rightGoal);
+			}
+			
+			var stats, clock;
+			var scene, camera, renderer, mixer;
+			init();
+			animate();
+			function init() {
+				scene = new THREE.Scene();
+
+				//Setup camera
+				camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 1000 );
+				camera.position.set( 5, 3, 5 );
+				camera.lookAt( scene.position );
+				
+				sceneSoccerField();
+
+				//Axes helper
+				var axesHelper = new THREE.AxesHelper( 20 );
+				scene.add( axesHelper );
 
 				//Load drone mesh
 				var loader = new THREE.OBJLoader();
@@ -175,8 +179,8 @@
 				light.shadow.mapSize.width = 1024;  // default
 				light.shadow.mapSize.height = 1024; // default
 
-				light.shadow.camera.left = -soccerfieldWidth/2;
-				light.shadow.camera.right = soccerfieldWidth/2;
+				light.shadow.camera.left = -20/2;
+				light.shadow.camera.right = 20/2;
 				light.shadow.camera.top = 10;
 				light.shadow.camera.bottom = -10;
 				light.shadow.camera.near = 0.5;    // default
