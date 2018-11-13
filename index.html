@@ -36,7 +36,7 @@
 			});
 			
 			keyFrameVectors = keyFrameVectors.map(function(val) {
-				return [val[1], val[2], val[0]];
+				return [val[0], val[2], val[1]];
 			});
 
             keyFrameVectors = [].concat(...keyFrameVectors);
@@ -50,7 +50,7 @@
 			});
 
 			keyFrameQuaternion = keyFrameQuaternion.map(function (val) { 
-				var euler = new THREE.Euler( -val[1], val[2], -val[0], 'XYZ' );
+				var euler = new THREE.Euler( val[0], val[2], val[1], 'XYZ' );
 				var quaternion = new THREE.Quaternion().setFromEuler(euler);
                 return [quaternion.x, quaternion.y, quaternion.z, quaternion.w]; 
 			});
