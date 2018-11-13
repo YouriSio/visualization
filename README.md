@@ -12,6 +12,7 @@
  - [ ] Animate roters on the drone
  - [x] Make the map user interactable	 
  - [ ] Add start/load screen
+ - [ ] Create multiple environments
 
 ## Installation
 
