@@ -30,8 +30,6 @@
             keyFrameTimes = keyFrameTimes.map(function (x) { 
                 return parseFloat(x);
 			});
-			
-			console.log(keyFrameTimes);
 
             var keyFrameVectors = path.map(function(val){
                 return val.slice(1, 4);
@@ -48,20 +46,16 @@
 			});
 
 			var keyFrameQuaternion = path.map(function(val){
-                return val.slice(4, 5);
-			}); 
+                return val.slice(4, 7);
+			});
 
-			keyFrameQuaternion = [].concat(...keyFrameQuaternion);
-
-			keyFrameQuaternion = keyFrameQuaternion.map(function (x) { 
-				var euler = new THREE.Euler( 0, x, 0, 'XYZ' );
+			keyFrameQuaternion = keyFrameQuaternion.map(function (val) { 
+				var euler = new THREE.Euler( -val[1], val[2], -val[0], 'XYZ' );
 				var quaternion = new THREE.Quaternion().setFromEuler(euler);
                 return [quaternion.x, quaternion.y, quaternion.z, quaternion.w]; 
 			});
 
 			keyFrameQuaternion = [].concat(...keyFrameQuaternion);
-
-			console.log(keyFrameQuaternion);
 
 			//
 			var stats, clock;
@@ -161,7 +155,7 @@
 					//Section animation
 					var positionKF = new THREE.VectorKeyframeTrack( '.position', keyFrameTimes, keyFrameVectors );
 					var quaternionKF = new THREE.QuaternionKeyframeTrack( '.quaternion', keyFrameTimes, keyFrameQuaternion );
-					var clip = new THREE.AnimationClip( 'Action', keyFrameTimes, [ positionKF, quaternionKF] );
+					var clip = new THREE.AnimationClip( 'Action', keyFrameTimes, [ quaternionKF, positionKF] );
 					mixer = new THREE.AnimationMixer( drone );
 					var clipAction = mixer.clipAction( clip );
 					clipAction.play();
