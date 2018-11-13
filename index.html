@@ -29,7 +29,9 @@
             var keyFrameTimes = getColumn(path, 0);
             keyFrameTimes = keyFrameTimes.map(function (x) { 
                 return parseFloat(x);
-            });
+			});
+			
+			console.log(keyFrameTimes);
 
             var keyFrameVectors = path.map(function(val){
                 return val.slice(1, 4);
@@ -137,7 +139,6 @@
 				loader.load('models/Avular_V2_Zero.obj', function( object ) {
 					//Scale from mm to meters
 					object.scale.set(.001,.001,.001);
-					object.rotation.x = -1.57079632679;
 
 					var mat = new THREE.MeshLambertMaterial({
 						//vertexColors: THREE.FaceColors,
@@ -160,7 +161,7 @@
 					//Section animation
 					var positionKF = new THREE.VectorKeyframeTrack( '.position', keyFrameTimes, keyFrameVectors );
 					var quaternionKF = new THREE.QuaternionKeyframeTrack( '.quaternion', keyFrameTimes, keyFrameQuaternion );
-					var clip = new THREE.AnimationClip( 'Action', 3, [ positionKF, quaternionKF] );
+					var clip = new THREE.AnimationClip( 'Action', keyFrameTimes, [ positionKF, quaternionKF] );
 					mixer = new THREE.AnimationMixer( drone );
 					var clipAction = mixer.clipAction( clip );
 					clipAction.play();
