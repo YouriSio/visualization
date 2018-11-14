@@ -117,12 +117,17 @@
 				rightGoal.position.y = goalHeight+goalThickness;
 				scene.add(rightGoal);
 			}
+
+			var clipAction;
 			
+			//Using clipaction.paused will stop just this clip, clock will stop all animation (as it is used by all clip mixers)
 			function pause() {
+				//clipAction.paused = true;
 				clock.stop();
 			}
 
 			function play() {
+				//clipAction.paused = false;
 				clock.start();
 			}
 
@@ -141,7 +146,7 @@
 				var positionKF = new THREE.VectorKeyframeTrack( '.position', newKeyFrameTimes, keyFrameVectors.slice(newPosition*3) );
 				var quaternionKF = new THREE.QuaternionKeyframeTrack( '.quaternion', newKeyFrameTimes, keyFrameQuaternion.slice(newPosition*4) );
 				var clip = new THREE.AnimationClip( 'Action', keyFrameTimes, [ quaternionKF, positionKF] );
-				var clipAction = mixer.clipAction( clip );
+				clipAction = mixer.clipAction( clip );
 				clipAction.play();
 			}
 
@@ -193,7 +198,7 @@
 					var quaternionKF = new THREE.QuaternionKeyframeTrack( '.quaternion', keyFrameTimes, keyFrameQuaternion );
 					var clip = new THREE.AnimationClip( 'Action', keyFrameTimes, [ quaternionKF, positionKF] );
 					mixer = new THREE.AnimationMixer( drone );
-					var clipAction = mixer.clipAction( clip );
+					clipAction = mixer.clipAction( clip );
 					clipAction.play();
 				});
 
