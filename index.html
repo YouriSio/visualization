@@ -10,6 +10,11 @@
 	</head>
 
 	<body>
+		<button onclick="pause();" style="float: right">Pause</button>
+		<button onclick="play();" style="float: right">Play</button>
+		<button onclick="setTime(0);" style="float: right">Reset</button>
+		<button onclick="setTime(3);" style="float: right">Set time 3</button>
+
 		<script src="js/three.js"></script>
 		<script src="js/OrbitControls.js"></script>
 		<script src="js/OBJLoader.js"></script>
@@ -29,14 +34,14 @@
             var keyFrameTimes = getColumn(path, 0);
             keyFrameTimes = keyFrameTimes.map(function (x) { 
                 return parseFloat(x);
-            });
+			});
 
             var keyFrameVectors = path.map(function(val){
                 return val.slice(1, 4);
 			});
 			
 			keyFrameVectors = keyFrameVectors.map(function(val) {
-				return [val[1], val[2], val[0]];
+				return [val[0], val[2], val[1]];
 			});
 
             keyFrameVectors = [].concat(...keyFrameVectors);
@@ -46,38 +51,19 @@
 			});
 
 			var keyFrameQuaternion = path.map(function(val){
-                return val.slice(4, 5);
-			}); 
+                return val.slice(4, 7);
+			});
 
-			keyFrameQuaternion = [].concat(...keyFrameQuaternion);
-
-			keyFrameQuaternion = keyFrameQuaternion.map(function (x) { 
-				var euler = new THREE.Euler( 0, x, 0, 'XYZ' );
+			keyFrameQuaternion = keyFrameQuaternion.map(function (val) { 
+				var euler = new THREE.Euler( val[0], val[2], val[1], 'XYZ' );
 				var quaternion = new THREE.Quaternion().setFromEuler(euler);
                 return [quaternion.x, quaternion.y, quaternion.z, quaternion.w]; 
 			});
 
 			keyFrameQuaternion = [].concat(...keyFrameQuaternion);
 
-			console.log(keyFrameQuaternion);
-
 			//
-			var stats, clock;
-			var scene, camera, renderer, mixer;
-			init();
-			animate();
-			function init() {
-				scene = new THREE.Scene();
-
-				//Setup camera
-				camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 1000 );
-				camera.position.set( 5, 3, 5 );
-				camera.lookAt( scene.position );
-
-				//Axes helper
-				var axesHelper = new THREE.AxesHelper( 20 );
-				scene.add( axesHelper );
-
+			function sceneSoccerField() {
 				//Floor
 				var soccerfieldWidth = 10;
 				var soccerfieldLength = 1.4 * soccerfieldWidth;
@@ -85,6 +71,8 @@
 				var floorGeometry = new THREE.CubeGeometry(soccerfieldLength,soccerfieldThickness,soccerfieldWidth);
 				var floorMaterial = new THREE.MeshLambertMaterial( { map: new THREE.TextureLoader().load('img/soccerfield.jpg'), side:THREE.DoubleSide } );
 				var floorCube = new THREE.Mesh( floorGeometry, floorMaterial );
+				//Receive shadow from drone
+				floorCube.receiveShadow = true;
 				scene.add( floorCube );
 
 				var goalWidth = 1.4;
@@ -128,6 +116,57 @@
 				rightGoal.position.x = (soccerfieldLength/2-.8);
 				rightGoal.position.y = goalHeight+goalThickness;
 				scene.add(rightGoal);
+			}
+
+			var clipAction;
+			
+			//Using clipaction.paused will stop just this clip, clock will stop all animation (as it is used by all clip mixers)
+			function pause() {
+				//clipAction.paused = true;
+				clock.stop();
+			}
+
+			function play() {
+				//clipAction.paused = false;
+				clock.start();
+			}
+
+			//Dirty hack -- NEEDS improvement
+			function setTime(setTime) {
+				//Resets mixer, calculates newposition by dividing by the keyframe interval
+				//It then slices the keyframe arrays so that only the part of the animation that is after the time remains
+				//It calculates the keyframetimes so that it gets shifted forward
+				//And starts the animation
+				mixer.stopAllAction();
+				var newPosition = setTime/keyFrameTimes[1];
+				var newKeyFrameTimes = keyFrameTimes.slice(newPosition);
+				newKeyFrameTimes = newKeyFrameTimes.map(function(val) {
+					return val - setTime;
+				});
+				var positionKF = new THREE.VectorKeyframeTrack( '.position', newKeyFrameTimes, keyFrameVectors.slice(newPosition*3) );
+				var quaternionKF = new THREE.QuaternionKeyframeTrack( '.quaternion', newKeyFrameTimes, keyFrameQuaternion.slice(newPosition*4) );
+				var clip = new THREE.AnimationClip( 'Action', keyFrameTimes, [ quaternionKF, positionKF] );
+				clipAction = mixer.clipAction( clip );
+				clipAction.play();
+			}
+
+			var stats, clock;
+			var scene, camera, renderer, mixer;
+			init();
+			animate();
+			function init() {
+				scene = new THREE.Scene();
+
+				//Setup camera
+				camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 1000 );
+				camera.position.set( 5, 3, 5 );
+				camera.lookAt( scene.position );
+				
+				sceneSoccerField();
+
+				//Axes helper
+				var axesHelper = new THREE.AxesHelper( 20 );
+				scene.add( axesHelper );
 
 				//Load drone mesh
 				var loader = new THREE.OBJLoader();
@@ -135,7 +174,6 @@
 				loader.load('models/Avular_V2_Zero.obj', function( object ) {
 					//Scale from mm to meters
 					object.scale.set(.001,.001,.001);
-					object.rotation.x = -1.57079632679;
 
 					var mat = new THREE.MeshLambertMaterial({
 						//vertexColors: THREE.FaceColors,
@@ -146,6 +184,9 @@
 					object.traverse(function(child) {
 						if (child instanceof THREE.Mesh) {
 							child.material = mat;
+							//Add shadows from drone but not receive shadows
+							child.castShadow = true;
+							child.receiveShadow = false;
 						}
 						drone = object;
 					});
@@ -155,24 +196,41 @@
 					//Section animation
 					var positionKF = new THREE.VectorKeyframeTrack( '.position', keyFrameTimes, keyFrameVectors );
 					var quaternionKF = new THREE.QuaternionKeyframeTrack( '.quaternion', keyFrameTimes, keyFrameQuaternion );
-					var clip = new THREE.AnimationClip( 'Action', 3, [ positionKF, quaternionKF] );
+					var clip = new THREE.AnimationClip( 'Action', keyFrameTimes, [ quaternionKF, positionKF] );
 					mixer = new THREE.AnimationMixer( drone );
-					var clipAction = mixer.clipAction( clip );
+					clipAction = mixer.clipAction( clip );
 					clipAction.play();
 				});
 
 				//Light
-				var ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.8);
+				var hemisphereLight = new THREE.HemisphereLight(0xaaaaaa,0x000000, .9)
+				scene.add( hemisphereLight );
 
-				scene.add( ambientLight );
+				//Create a DirectionalLight and turn on shadows for the light
+				var light = new THREE.DirectionalLight( 0xffffff, .9);
+				light.position.set( 0, 8, 0 );
+				light.castShadow = true;            // default false
+				scene.add( light );
 
-				var directionalLight = new THREE.DirectionalLight(0XFFFFFF,1);
-				directionalLight.position.set( 0,1,0 );
-				scene.add( directionalLight );
+				//Set up shadow properties for the light
+				light.shadow.mapSize.width = 1024;  // default
+				light.shadow.mapSize.height = 1024; // default
 
-				
+				light.shadow.camera.left = -20/2;
+				light.shadow.camera.right = 20/2;
+				light.shadow.camera.top = 10;
+				light.shadow.camera.bottom = -10;
+				light.shadow.camera.near = 0.5;    // default
+				light.shadow.camera.far = 1000;     // default
+
+				var helper = new THREE.CameraHelper( light.shadow.camera );
+				//scene.add( helper );		
 				//
+
 				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				//Enable shadows
+				renderer.shadowMap.enabled = true;
+				renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				document.body.appendChild( renderer.domElement );
