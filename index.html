@@ -22,6 +22,25 @@
 		<script src="docs/path.js"></script>
 
 		<script>
+
+			var textureLoader = new THREE.TextureLoader();
+			var logo = textureLoader.load( 'img/firefly.jpeg' );
+			var materialstart = new THREE.MeshBasicMaterial({map: logo})
+
+			var loadingScreen = {
+				scene:new THREE.Scene(),
+				camera: new THREE.PerspectiveCamera(90,1280/720,0.1,100),
+				box: new THREE.Mesh(
+
+				new THREE.BoxGeometry(8,3,1),
+				new THREE.MeshFaceMaterial(materialstart)
+
+				)
+			};
+
+			var RESOURCES_LOADED = false;
+
+
 			//Get keyframe arrays from path.js
 			function getColumn(matrix, col){
                 var column = [];
@@ -150,11 +169,29 @@
 				clipAction.play();
 			}
 
+			var LOADING_MANAGER = null;
+
 			var stats, clock;
 			var scene, camera, renderer, mixer;
 			init();
 			animate();
 			function init() {
+				
+				loadingScreen.box.position.set(0,0,5);
+				loadingScreen.camera.lookAt(loadingScreen.box.position);
+				loadingScreen.scene.add(loadingScreen.box);
+
+				loadingManager = new THREE.LoadingManager();
+
+				loadingManager.onProgress = function(item, loaded, total){
+					console.log(item, loaded, total);
+				};
+
+				loadingManager.onLoad = function(){
+					console.log('All Resources Loaded');
+					RESOURCES_LOADED = true;
+				};
+
 				scene = new THREE.Scene();
 
 				//Setup camera
@@ -169,7 +206,7 @@
 				scene.add( axesHelper );
 
 				//Load drone mesh
-				var loader = new THREE.OBJLoader();
+				var loader = new THREE.OBJLoader( loadingManager );
 				var drone = new THREE.Object3D();
 				loader.load('models/Avular_V2_Zero.obj', function( object ) {
 					//Scale from mm to meters
@@ -253,6 +290,22 @@
 				renderer.setSize( window.innerWidth, window.innerHeight );
 			}
 			function animate() {
+				
+				if ( RESOURCES_LOADED == false ){
+
+					requestAnimationFrame( animate );
+
+					loadingScreen.box.position.x -= 0.05;
+					if( loadingScreen.box.position.x < -10 ) {
+						loadingScreen.box.position.x = 10;
+					}
+					loadingScreen.box.position.y = Math.sin(loadingScreen.box.position.x);
+
+					renderer.render(loadingScreen.scene, loadingScreen.camera);
+
+					return;
+				}
+
 				requestAnimationFrame( animate );
 				render();
 			}
