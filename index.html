@@ -61,10 +61,12 @@
 			function sceneSoccerField() {
 				//Floor
 				var soccerfieldWidth = 10;
-				var soccerfieldLength = 1.4 * soccerfieldWidth;
+				var soccerfieldLength = 1.5 * soccerfieldWidth;
 				var soccerfieldThickness = 0.1;
 				var floorGeometry = new THREE.CubeGeometry(soccerfieldLength,soccerfieldThickness,soccerfieldWidth);
-				var floorMaterial = new THREE.MeshLambertMaterial( { map: new THREE.TextureLoader().load('img/soccerfield.jpg'), side:THREE.DoubleSide } );
+				var floorTexture = new THREE.TextureLoader().load('img/soccerfield v2.png');
+				floorTexture.minFilter = THREE.LinearFilter;
+				var floorMaterial = new THREE.MeshLambertMaterial( { map: floorTexture, side:THREE.DoubleSide } );
 				var floorCube = new THREE.Mesh( floorGeometry, floorMaterial );
 				//Receive shadow from drone
 				floorCube.receiveShadow = true;
@@ -103,12 +105,12 @@
 				}
 				
 				var leftGoal = createGoal();
-				leftGoal.position.x = -(soccerfieldLength/2-.9);
+				leftGoal.position.x = -(soccerfieldLength/2-1.05);
 				leftGoal.position.y = goalHeight+goalThickness;
 				scene.add(leftGoal);
 
 				var rightGoal = createGoal();
-				rightGoal.position.x = (soccerfieldLength/2-.8);
+				rightGoal.position.x = (soccerfieldLength/2-1.05);
 				rightGoal.position.y = goalHeight+goalThickness;
 				scene.add(rightGoal);
 			}
@@ -166,11 +168,11 @@
 				});
 
 				//Light
-				var hemisphereLight = new THREE.HemisphereLight(0xaaaaaa,0x000000, .9)
+				var hemisphereLight = new THREE.HemisphereLight(0xaaaaaa,0x000000, .7)
 				scene.add( hemisphereLight );
 
 				//Create a DirectionalLight and turn on shadows for the light
-				var light = new THREE.DirectionalLight( 0xffffff, .9);
+				var light = new THREE.DirectionalLight( 0xffffff, .7);
 				light.position.set( 0, 8, 0 );
 				light.castShadow = true;            // default false
 				scene.add( light );
