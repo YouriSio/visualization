@@ -4,8 +4,12 @@ var keyFrameTimes;
 var keyFrameVectors;
 var keyFrameQuaternion;
 var clipAction;
+var canvas3D = document.getElementById("canvas3D");
 
 var reqInterval = window.setInterval(update, 20);
+
+canvas3D.width = window.innerWidth;
+canvas3D.height = window.innerHeight;
 
 pathToKeyframes(path);
 initiateAnimation();
@@ -202,13 +206,12 @@ function initiateAnimation() {
   var helper = new THREE.CameraHelper( light.shadow.camera );
   //scene.add( helper );
 
-  renderer = new THREE.WebGLRenderer( { antialias: true } );
+  renderer = new THREE.WebGLRenderer( {canvas: canvas3D, antialias: true } );
   //Enable shadows
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
   renderer.setPixelRatio( window.devicePixelRatio );
   renderer.setSize( window.innerWidth, window.innerHeight );
-  document.body.appendChild( renderer.domElement );
 
   controls = new THREE.OrbitControls( camera, renderer.domElement );
 
