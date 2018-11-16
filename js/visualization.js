@@ -3,11 +3,12 @@ var scene, camera, renderer, mixer;
 var clipAction;
 var canvas3D = document.getElementById("canvas3D");
 
+canvas3D.width = window.innerWidth;
+canvas3D.height = window.innerHeight;
+
 var reqInterval = window.setInterval(update, 20);
 
 animatePath(path);
-
-onWindowResize();
 
 function update() {
   if (clipAction !== undefined && clipAction.enabled) {
@@ -139,10 +140,16 @@ function createAnimation(keyframes) {
   var keyFrameVectors = keyframes[1];
   var keyFrameQuaternion = keyframes[2];
 
+  canvas3D.width = window.innerWidth;
+  canvas3D.height = window.innerHeight;
+
+  var height = canvas3D.height;
+  var width = canvas3D.width;
+
   scene = new THREE.Scene();
 
   //Setup camera
-  camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 1000 );
+  camera = new THREE.PerspectiveCamera( 40, width / height, 1, 1000 );
   camera.position.set( 5, 3, 5 );
   camera.lookAt( scene.position );
 
@@ -215,7 +222,7 @@ function createAnimation(keyframes) {
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
   renderer.setPixelRatio( window.devicePixelRatio );
-  renderer.setSize( canvas3D.width, canvas3D.height );
+  renderer.setSize( width, height );
 
   controls = new THREE.OrbitControls( camera, renderer.domElement );
 
