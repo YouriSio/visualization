@@ -122,33 +122,12 @@ function sceneSoccerField() {
 }
 
 //Using clipaction.paused will stop just this clip, clock will stop all animation (as it is used by all clip mixers)
-function pause() {
-  //clipAction.paused = true;
-  clock.stop();
+function setAnimationPaused(pause) {
+  clipAction.paused = pause;
 }
 
-function play() {
-  //clipAction.paused = false;
-  clock.start();
-}
-
-//Dirty hack -- NEEDS improvement
-function setTime(setTime) {
-  //Resets mixer, calculates newposition by dividing by the keyframe interval
-  //It then slices the keyframe arrays so that only the part of the animation that is after the time remains
-  //It calculates the keyframetimes so that it gets shifted forward
-  //And starts the animation
-  mixer.stopAllAction();
-  var newPosition = setTime/keyFrameTimes[1];
-  var newKeyFrameTimes = keyFrameTimes.slice(newPosition);
-  newKeyFrameTimes = newKeyFrameTimes.map(function(val) {
-    return val - setTime;
-  });
-  var positionKF = new THREE.VectorKeyframeTrack( '.position', newKeyFrameTimes, keyFrameVectors.slice(newPosition*3) );
-  var quaternionKF = new THREE.QuaternionKeyframeTrack( '.quaternion', newKeyFrameTimes, keyFrameQuaternion.slice(newPosition*4) );
-  var clip = new THREE.AnimationClip( 'Action', keyFrameTimes, [ quaternionKF, positionKF] );
-  clipAction = mixer.clipAction( clip );
-  clipAction.play();
+function setAnimationTime(time) {
+  clipAction.time = time;
 }
 
 function initiateAnimation() {

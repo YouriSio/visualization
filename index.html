@@ -10,10 +10,10 @@
 	</head>
 
 	<body>
-		<button onclick="pause();" style="float: right">Pause</button>
-		<button onclick="play();" style="float: right">Play</button>
-		<button onclick="setTime(0);" style="float: right">Reset</button>
-		<button onclick="setTime(3);" style="float: right">Set time 3</button>
+		<button onclick="setAnimationPaused(true);" style="float: right">Pause</button>
+		<button onclick="setAnimationPaused(false);;" style="float: right">Play</button>
+		<button onclick="setAnimationTime(0);" style="float: right">Reset</button>
+		<button onclick="setAnimationTime(3);" style="float: right">Set time 3</button>
 
 		<script src="js/three.js"></script>
 		<script src="js/OrbitControls.js"></script>
