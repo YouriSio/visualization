@@ -24,6 +24,14 @@
 		<script>
 			var stats, clock;
 			var scene, camera, renderer, mixer;
+			var keyFrameTimes;
+			var keyFrameVectors;
+			var keyFrameQuaternion;
+			var clipAction;
+
+			pathToKeyframes(path);
+			initiateAnimation();
+			animate();
 
 			//Get keyframe arrays from path.js
 			function getColumn(matrix, col){
@@ -34,36 +42,38 @@
         return column;
       }
 
-      var keyFrameTimes = getColumn(path, 0);
-      keyFrameTimes = keyFrameTimes.map(function (x) {
-        return parseFloat(x);
-			});
+			function pathToKeyframes(path) {
+				keyFrameTimes = getColumn(path, 0);
+	      keyFrameTimes = keyFrameTimes.map(function (x) {
+	        return parseFloat(x);
+				});
 
-    	var keyFrameVectors = path.map(function(val){
-      	return val.slice(1, 4);
-			});
+	    	keyFrameVectors = path.map(function(val){
+	      	return val.slice(1, 4);
+				});
 
-			keyFrameVectors = keyFrameVectors.map(function(val) {
-				return [val[0], val[2], val[1]];
-			});
+				keyFrameVectors = keyFrameVectors.map(function(val) {
+					return [val[0], val[2], val[1]];
+				});
 
-      keyFrameVectors = [].concat(...keyFrameVectors);
+	      keyFrameVectors = [].concat(...keyFrameVectors);
 
-      keyFrameVectors = keyFrameVectors.map(function (x) {
-        return parseFloat(x);
-			});
+	      keyFrameVectors = keyFrameVectors.map(function (x) {
+	        return parseFloat(x);
+				});
 
-			var keyFrameQuaternion = path.map(function(val){
-        return val.slice(4, 7);
-			});
+				keyFrameQuaternion = path.map(function(val){
+	        return val.slice(4, 7);
+				});
 
-			keyFrameQuaternion = keyFrameQuaternion.map(function (val) {
-				var euler = new THREE.Euler( val[0], val[2], val[1], 'XYZ' );
-				var quaternion = new THREE.Quaternion().setFromEuler(euler);
-        return [quaternion.x, quaternion.y, quaternion.z, quaternion.w];
-			});
+				keyFrameQuaternion = keyFrameQuaternion.map(function (val) {
+					var euler = new THREE.Euler( val[0], val[2], val[1], 'XYZ' );
+					var quaternion = new THREE.Quaternion().setFromEuler(euler);
+	        return [quaternion.x, quaternion.y, quaternion.z, quaternion.w];
+				});
 
-			keyFrameQuaternion = [].concat(...keyFrameQuaternion);
+				keyFrameQuaternion = [].concat(...keyFrameQuaternion);
+			}
 
 			//
 			function sceneSoccerField() {
@@ -123,8 +133,6 @@
 				scene.add(rightGoal);
 			}
 
-			var clipAction;
-
 			//Using clipaction.paused will stop just this clip, clock will stop all animation (as it is used by all clip mixers)
 			function pause() {
 				//clipAction.paused = true;
@@ -155,10 +163,7 @@
 				clipAction.play();
 			}
 
-			init();
-			animate();
-
-			function init() {
+			function initiateAnimation() {
 				scene = new THREE.Scene();
 
 				//Setup camera
@@ -258,9 +263,10 @@
 			}
 			function animate() {
 				requestAnimationFrame( animate );
-				render();
+				renderAnimation();
 			}
-			function render() {
+			
+			function renderAnimation() {
 				var delta = clock.getDelta();
 				if ( mixer ) {
 					mixer.update( delta );
