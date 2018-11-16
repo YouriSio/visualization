@@ -5,9 +5,21 @@ var keyFrameVectors;
 var keyFrameQuaternion;
 var clipAction;
 
+var reqInterval = window.setInterval(update, 20);
+
 pathToKeyframes(path);
 initiateAnimation();
-animate();
+
+function update() {
+  if (clipAction !== undefined && clipAction.enabled) {
+    requestAnimationFrame( renderAnimation );
+  }
+}
+
+function animatePath(path) {
+  pathToKeyframes(path);
+  initiateAnimation();
+}
 
 //Get keyframe arrays from path.js
 function getColumn(matrix, col){
@@ -210,7 +222,6 @@ function initiateAnimation() {
 
   var helper = new THREE.CameraHelper( light.shadow.camera );
   //scene.add( helper );
-  //
 
   renderer = new THREE.WebGLRenderer( { antialias: true } );
   //Enable shadows
@@ -236,10 +247,6 @@ function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize( window.innerWidth, window.innerHeight );
-}
-function animate() {
-  requestAnimationFrame( animate );
-  renderAnimation();
 }
 
 function renderAnimation() {
