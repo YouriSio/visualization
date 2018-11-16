@@ -1,28 +1,26 @@
 var stats, clock;
 var scene, camera, renderer, mixer;
-var keyFrameTimes;
-var keyFrameVectors;
-var keyFrameQuaternion;
 var clipAction;
 var canvas3D = document.getElementById("canvas3D");
 
 var reqInterval = window.setInterval(update, 20);
 
-canvas3D.width = window.innerWidth;
-canvas3D.height = window.innerHeight;
+animatePath(path);
 
-pathToKeyframes(path);
-initiateAnimation();
+onWindowResize();
 
 function update() {
   if (clipAction !== undefined && clipAction.enabled) {
-    requestAnimationFrame( renderAnimation );
+    requestAnimationFrame( renderVisualization );
   }
 }
 
 function animatePath(path) {
-  pathToKeyframes(path);
-  initiateAnimation();
+  if (clipAction !== undefined) {
+    clipAction.enabled = false;
+  }
+  var keyframes = pathToKeyframes(path);
+  createAnimation(keyframes);
 }
 
 //Get keyframe arrays from path.js
@@ -65,6 +63,8 @@ function pathToKeyframes(path) {
   });
 
   keyFrameQuaternion = [].concat(...keyFrameQuaternion);
+
+  return [keyFrameTimes, keyFrameVectors, keyFrameQuaternion];
 }
 
 //
@@ -134,7 +134,11 @@ function setAnimationTime(time) {
   clipAction.time = time;
 }
 
-function initiateAnimation() {
+function createAnimation(keyframes) {
+  var keyFrameTimes = keyframes[0];
+  var keyFrameVectors = keyframes[1];
+  var keyFrameQuaternion = keyframes[2];
+
   scene = new THREE.Scene();
 
   //Setup camera
@@ -211,7 +215,7 @@ function initiateAnimation() {
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
   renderer.setPixelRatio( window.devicePixelRatio );
-  renderer.setSize( window.innerWidth, window.innerHeight );
+  renderer.setSize( canvas3D.width, canvas3D.height );
 
   controls = new THREE.OrbitControls( camera, renderer.domElement );
 
@@ -226,12 +230,14 @@ function initiateAnimation() {
 
 //draw scene
 function onWindowResize() {
-  camera.aspect = window.innerWidth / window.innerHeight;
+  canvas3D.width = window.innerWidth;
+  canvas3D.height = window.innerHeight;
+  camera.aspect = canvas3D.width / canvas3D.height;
   camera.updateProjectionMatrix();
-  renderer.setSize( window.innerWidth, window.innerHeight );
+  renderer.setSize( canvas3D.width, canvas3D.height );
 }
 
-function renderAnimation() {
+function renderVisualization() {
   var delta = clock.getDelta();
   if ( mixer ) {
     mixer.update( delta );
